@@ -1,0 +1,13 @@
+{
+  "name": "sample-golang-kafka-producer",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "lorem-ipsum": "^2.0.8",
+    "node-rdkafka": "^2.18.0"
+  }
+}

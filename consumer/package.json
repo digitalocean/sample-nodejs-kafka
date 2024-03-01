@@ -1,0 +1,11 @@
+{
+  "name": "sample-golang-kafka-producer",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./index.js"
+  },
+  "dependencies": {
+    "node-rdkafka": "^2.18.0"
+  }
+}

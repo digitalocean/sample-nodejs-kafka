@@ -1,0 +1,13 @@
+spec:
+  name: sample-nodejs-kafka
+  services:
+  - name: producer
+    source_dir: producer
+    git:
+      branch: main
+      repo_clone_url: https://github.com/blesswinsamuel/sample-nodejs-kafka.git
+  - name: consumer
+    source_dir: consumer
+    git:
+      repo_clone_url: https://github.com/blesswinsamuel/sample-nodejs-kafka.git
+      branch: main
