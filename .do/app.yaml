@@ -1,10 +1,33 @@
 name: sample-nodejs-kafka
+envs:
+  - scope: RUN_TIME
+    type: GENERAL
+    key: KAFKA_BROKER
+    value: TODO
+  - scope: RUN_TIME
+    type: GENERAL
+    key: KAFKA_TOPIC
+    value: TODO
+  - scope: RUN_TIME
+    type: GENERAL
+    key: KAFKA_USERNAME
+    value: TODO
+  - scope: RUN_TIME
+    type: GENERAL
+    key: KAFKA_PASSWORD
+    value: TODO
+  - scope: RUN_TIME
+    type: GENERAL
+    key: KAFKA_CA_CERT
+    value: |
+      TODO
 services:
 - name: producer
   source_dir: producer
   github:
     repo: blesswinsamuel/sample-nodejs-kafka
     branch: main
+workers:
 - name: consumer
   source_dir: consumer
   github:
