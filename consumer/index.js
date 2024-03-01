@@ -1,12 +1,14 @@
 const fs = require('fs')
 const Kafka = require('node-rdkafka');
 
+
+if (process.env.KAFKA_CA_CERT) {
+  fs.writeFileSync('ca-certificate.crt', process.env.KAFKA_CA_CERT, 'utf-8')
+}
+
+const CONSUMER_GROUP = 'sample-consumer-group'
+
 const SASL_MECHANISM = 'SCRAM-SHA-256'
-
-fs.writeFileSync('ca-certificate.crt', process.env.KAFKA_CA_CERT, 'utf-8')
-
-const CONSUMER_GROUP = 'test-consumer-group'
-
 const stream = new Kafka.createReadStream({
   'metadata.broker.list': process.env.KAFKA_BROKER,
   'group.id': CONSUMER_GROUP,
@@ -18,5 +20,5 @@ const stream = new Kafka.createReadStream({
 }, {}, {'topics': [process.env.KAFKA_TOPIC]});
 
 stream.on('data', (message) => {
-  console.log('Got message', message.value.toString());
+  console.log('Message consumed: value = ' + message.value.toString() + ', timestamp = ' + message.timestamp + ', topic = ' + message.topic + ', partition = ' + message.partition + ', offset = ' + message.offset);
 });

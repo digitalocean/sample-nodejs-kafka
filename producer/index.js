@@ -5,23 +5,11 @@ const Kafka = require('node-rdkafka');
 
 const port = process.env.PORT || 3000
 
-var LoremIpsum = require('lorem-ipsum').LoremIpsum;
-
-var lorem = new LoremIpsum({
-  sentencesPerParagraph: {
-    max: 8,
-    min: 4
-  },
-  wordsPerSentence: {
-    max: 16,
-    min: 4
-  }
-});
+if (process.env.KAFKA_CA_CERT) {
+  fs.writeFileSync('ca-certificate.crt', process.env.KAFKA_CA_CERT, 'utf-8')
+}
 
 const SASL_MECHANISM = 'SCRAM-SHA-256'
-
-fs.writeFileSync('ca-certificate.crt', process.env.KAFKA_CA_CERT, 'utf-8')
-
 const producer = new Kafka.HighLevelProducer({
   'metadata.broker.list': process.env.KAFKA_BROKER,
   'security.protocol': 'sasl_ssl',
@@ -29,72 +17,47 @@ const producer = new Kafka.HighLevelProducer({
   'sasl.username': process.env.KAFKA_USERNAME,
   'sasl.password': process.env.KAFKA_PASSWORD,
   'ssl.ca.location': 'ca-certificate.crt',
-  'dr_cb': true
 });
 
 // Connect to the broker manually
 producer.connect();
 
-// // Wait for the ready event before proceeding
-// producer.on('ready', () => {
-//   try {
-//     producer.produce(
-//       process.env.KAFKA_TOPIC,
-//       null,
-//       // Message to send. Must be a buffer
-//       Buffer.from('started!'),
-//       // for keyed messages, we also specify the key - note that this field is optional
-//       'Stormwind',
-//       // you can send a timestamp here. If your broker version supports it,
-//       // it will get added. Otherwise, we default to 0
-//       Date.now(),
-//       // you can send an opaque token here, which gets passed along
-//       // to your delivery reports
-//     );
-//   } catch (err) {
-//     console.error('A problem occurred when sending our message');
-//     console.error(err);
-//   }
-// });
+const topic = process.env.KAFKA_TOPIC
 
-app.get('/', (req, res) => res.send(lorem.generateParagraphs(7)))
-app.get('/kafka-test2', (req, res) => {
-  console.log('sending message')
+app.use(
+  express.raw({
+    inflate: true,
+    limit: '50mb',
+    type: () => true, // this matches all content types
+  })
+);
+
+app.post('/produce', (req, res) => {
+  console.log('Got request!', req.method, req.url)
   try {
     producer.produce(
-      process.env.KAFKA_TOPIC,
+      topic,
       null,
-      // Message to send. Must be a buffer
-      Buffer.from(lorem.generateWords(4)),
-      // for keyed messages, we also specify the key - note that this field is optional
-      'Stormwind',
-      // you can send a timestamp here. If your broker version supports it,
-      // it will get added. Otherwise, we default to 0
+      Object.keys(req.body).length === 0 ? Buffer.from("hello!") : Buffer.from(req.body),
+      null,
       Date.now(),
-      // you can send an opaque token here, which gets passed along
-      // to your delivery reports
       (err, report) => {
         if (err) {
-          console.error('Error occurred when sending message');
-          console.error(err);
+          console.error('Error occurred when sending message', err);
+          res.send(Buffer.from('error while sending message: ' + err.toString()))
         } else {
-
+          res.send(Buffer.from('Message produced at offset ' + report))
         }
-        console.log('delivery-report: ' + JSON.stringify(report))
       }
     );
-    res.send('done!')
   } catch (err) {
-    console.error('A problem occurred when sending our message');
-    console.error(err);
-    res.send('error!')
+    console.error('A problem occurred when sending our message', err);
+    res.send(Buffer.from('error while sending message: ' + err.toString()))
   }
 })
 
-// Any errors we encounter, including connection errors
 producer.on('event.error', (err) => {
-  console.error('Error from producer');
-  console.error(err);
+  console.error('Error from producer', err);
 })
 
 // We must either call .poll() manually after sending messages
@@ -103,4 +66,6 @@ producer.on('event.error', (err) => {
 // will eventually fill up.
 producer.setPollInterval(100);
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+producer.on('ready', () => {
+  app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+})
