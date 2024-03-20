@@ -22,14 +22,14 @@ envs:
     value: |
       TODO
 services:
-- name: producer
-  source_dir: producer
-  github:
-    repo: blesswinsamuel/sample-nodejs-kafka
-    branch: main
+  - name: producer
+    source_dir: producer
+    github:
+      repo: digitalocean/sample-nodejs-kafka
+      branch: main
 workers:
-- name: consumer
-  source_dir: consumer
-  github:
-    repo: blesswinsamuel/sample-nodejs-kafka
-    branch: main
+  - name: consumer
+    source_dir: consumer
+    github:
+      repo: digitalocean/sample-nodejs-kafka
+      branch: main

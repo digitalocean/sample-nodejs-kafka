@@ -23,14 +23,14 @@ spec:
       value: |
         TODO
   services:
-  - name: producer
-    source_dir: producer
-    git:
-      branch: main
-      repo_clone_url: https://github.com/blesswinsamuel/sample-nodejs-kafka.git
+    - name: producer
+      source_dir: producer
+      git:
+        branch: main
+        repo_clone_url: https://github.com/digitalocean/sample-nodejs-kafka.git
   workers:
-  - name: consumer
-    source_dir: consumer
-    git:
-      repo_clone_url: https://github.com/blesswinsamuel/sample-nodejs-kafka.git
-      branch: main
+    - name: consumer
+      source_dir: consumer
+      git:
+        repo_clone_url: https://github.com/digitalocean/sample-nodejs-kafka.git
+        branch: main
